@@ -1,0 +1,55 @@
+---
+- name: set hostname
+  hostname: name="{{ inventory_hostname }}"
+
+- name: add hostname to /etc/sysconfig/network
+  lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ inventory_hostname }}"
+
+- name: see if puppet has already configured itself
+  command: "ls /etc/puppet/rack/public"
+  register: puppet_configured
+  ignore_errors: True
+
+- name: install puppetlabs repo
+  yum: name=puppetlabs-release state=present
+  with_items:
+    - "{{ puppetlabs_repo_url }}"
+
+- name: install passenger repo
+  get_url: url="{{ passenger_dot_repo_file_url }}" dest=/etc/yum.repos.d/passenger.repo
+
+- name: install mod_passenger (with a hack to accept the gpg key initially)
+  command: "yum -y install mod_passenger"
+
+- name: install puppet, git and gem
+  yum: name=puppet,puppet-server,git,rubygems state=present
+
+- name: install r10k with gem
+  gem: name=r10k state=present user_install=no
+
+- name: deploy a basic puppet.conf for initial bootstrapping using puppet
+  template: src=puppet.conf dest=/etc/puppet/puppet.conf
+  when: puppet_configured|failed
+
+- name: deploy a configuration file for r10k
+  template: src=r10k.yaml dest=/etc/puppet/r10k.yaml
+
+- name: deploy a configuration file for hiera
+  template: src=hiera.yaml dest=/etc/puppet/hiera.yaml
+
+- name: add the fqdn in /etc/hosts and map it to 127.0.0.1
+  lineinfile: dest=/etc/hosts line="127.0.0.1 {{ ansible_fqdn }}"
+
+- name: start the puppet master service for initial config
+  service: name=puppetmaster state=started
+  when: puppet_configured|failed
+
+- name: deploy puppet environments with r10k
+  command: "/usr/local/bin/r10k deploy environment -c /etc/puppet/r10k.yaml -p"
+
+- name: run puppet to configure the puppetmaster
+  command: "puppet agent -t"
+  register: puppet_result
+  failed_when: (puppet_result.rc != 2) and (puppet_result.rc != 0)
+  tags:
+    - puppetrun

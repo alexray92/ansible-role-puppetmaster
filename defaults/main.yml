@@ -1,0 +1,3 @@
+---
+puppetlabs_repo_url: "https://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm"
+passenger_dot_repo_file_url: "https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo"

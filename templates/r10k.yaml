@@ -1,0 +1,5 @@
+---
+sources:
+  puppet:
+    remote: "{{ puppet_environments_repo }}"
+    basedir: '/etc/puppet/environments'
