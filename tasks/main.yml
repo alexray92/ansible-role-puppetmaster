@@ -16,7 +16,7 @@
     - "{{ puppetlabs_repo_url }}"
 
 - name: install passenger repo
-  get_url: url="{{ passenger_dot_repo_file_url }}" dest=/etc/yum.repos.d/passenger.repo
+  get_url: url="{{ passenger_dot_repo_file_url }}" dest=/etc/yum.repos.d/passenger.repo validate_certs=no
 
 - name: install mod_passenger (with a hack to accept the gpg key initially)
   command: "yum -y install mod_passenger"
