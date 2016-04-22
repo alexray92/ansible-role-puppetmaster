@@ -1,19 +1,13 @@
 ---
-- name: set hostname
-  hostname: name="{{ inventory_hostname }}"
-
-- name: add hostname to /etc/sysconfig/network
-  lineinfile: dest=/etc/sysconfig/network line="HOSTNAME={{ inventory_hostname }}"
-
-- name: see if puppet has already configured itself
+- name: check if puppet is already configured
   command: "ls /etc/puppet/rack/public"
   register: puppet_configured
   ignore_errors: True
 
 - name: install puppetlabs repo
-  yum: name=puppetlabs-release state=present
+  yum: name={{item}} state=present
   with_items:
-    - "{{ puppetlabs_repo_url }}"
+    - "{{puppetlabs_repo_url}}"
 
 - name: install passenger repo
   get_url: url="{{ passenger_dot_repo_file_url }}" dest=/etc/yum.repos.d/passenger.repo validate_certs=no
@@ -21,26 +15,32 @@
 - name: install mod_passenger (with a hack to accept the gpg key initially)
   command: "yum -y install mod_passenger"
 
-- name: install puppet, git and gem
-  yum: name=puppet,puppet-server,git,rubygems state=present
+- name: install tools packages
+  yum: name={{item}} state=present
+  with_items: "{{rpm_packages}}"
 
-- name: install r10k with gem
-  gem: name=r10k state=present user_install=no
+- name: install ruby gems
+  gem: name={{item}} state=present user_install=no
+  with_items: "{{ruby_gems}}"
 
-- name: deploy a basic puppet.conf for initial bootstrapping using puppet
-  template: src=puppet.conf dest=/etc/puppet/puppet.conf
+- name: deploy basic puppet.conf for initial bootstrapping
+  template: src=puppet.conf dest={{puppet_basedir}}/puppet.conf
   when: puppet_configured|failed
 
 - name: deploy a configuration file for r10k
-  template: src=r10k.yaml dest=/etc/puppet/r10k.yaml
+  template: src=r10k.yaml dest={{puppet_basedir}}/r10k.yaml
 
 - name: deploy a configuration file for hiera
-  template: src=hiera.yaml dest=/etc/puppet/hiera.yaml
+  template: src=hiera.yaml dest={{puppet_basedir}}/hiera.yaml
 
 - name: deploy puppet environments with r10k
-  command: "/usr/local/bin/r10k deploy environment -c /etc/puppet/r10k.yaml -p -v error"
+  command: "/usr/local/bin/r10k deploy environment -c {{puppet_basedir}}/r10k.yaml -p -v error"
+
+- name: start the puppet master service for initial config
+  service: name=puppetmaster state=started
+  when: puppet_configured|failed
 
 - name: run masterless puppet to configure the puppetmaster
-  command: "puppet apply --environment {{puppet_environment}} --pluginsync --hiera_config /etc/puppet/hiera.yaml --modulepath /etc/puppet/environments/{{puppet_environment}}/modules /etc/puppet/environments/{{puppet_environment}}/manifests"
+  command: "puppet apply --environment {{puppet_environment}} --pluginsync --hiera_config {{puppet_basedir}}/hiera.yaml --modulepath {{puppet_basedir}}/environments/{{puppet_environment}}/modules {{puppet_basedir}}/environments/{{puppet_environment}}/manifests"
   register: puppet_result
   failed_when: (puppet_result.rc != 2) and (puppet_result.rc != 0)
