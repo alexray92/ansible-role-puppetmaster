@@ -17,5 +17,5 @@
   :datadir: "{{puppet_basedir}}/environments/%{::environment}/hieradata"
 :eyaml:
   :datadir: "{{puppet_basedir}}/environments/%{::environment}/hieradata"
-  :pkcs7_private_key: "{{puppet_basedir}}/keys/private_key.pkcs7.pem"
-  :pkcs7_public_key:  "{{puppet_basedir}}/keys/public_key.pkcs7.pem"
+  :pkcs7_private_key: "{{hiera_private_key_file}}"
+  :pkcs7_public_key:  "{{hiera_public_key_file}}"

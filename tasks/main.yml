@@ -27,6 +27,38 @@
   template: src=puppet.conf dest={{puppet_basedir}}/puppet.conf
   when: puppet_configured|failed
 
+- name: ensure hiera keys directory exists
+  file: path="{{hiera_credentials_dir}}" state=directory
+        group="puppet" owner="puppet" mode=0750
+
+- name: deploy hiera private key
+  copy: content="{{hiera_private_key}}" dest="{{hiera_private_key_file}}"
+        group="puppet" owner="puppet" mode=0400
+  when: hiera_private_key != ""
+
+- name: deploy hiera public key
+  copy: content="{{hiera_public_key}}" dest="{{hiera_public_key_file}}"
+        group="puppet" owner="puppet" mode=0440
+  when: hiera_public_key != ""
+
+- name: ensure puppet ssl directory exists
+  file: path="{{puppet_data_dir}}/ssl" state=directory
+        group="puppet" owner="puppet" mode=0775
+
+- name: ensure puppet ca directory exists
+  file: path="{{puppet_data_dir}}/ssl/ca" state=directory
+        group="puppet" owner="puppet" mode=0755
+
+- name: deploy puppetmaster CA private key
+  copy: content="{{puppetmaster_ca_privkey}}" dest="{{puppetmaster_ca_privkey_file}}"
+        group="puppet" owner="puppet" mode=0640
+  when: puppetmaster_ca_privkey != ""
+
+- name: deploy puppetmaster CA certificate
+  copy: content="{{puppetmaster_ca_cert}}" dest="{{puppetmaster_ca_cert_file}}"
+        group="puppet" owner="puppet" mode=0640
+  when: puppetmaster_ca_cert != ""
+
 - name: deploy a configuration file for r10k
   template: src=r10k.yaml dest={{puppet_basedir}}/r10k.yaml
 
@@ -36,8 +68,12 @@
 - name: deploy puppet environments with r10k
   command: "/usr/local/bin/r10k deploy environment -c {{puppet_basedir}}/r10k.yaml -p -v error"
 
-- name: start the puppet master service for initial config
-  service: name=puppetmaster state=started
+- name: generate client certificate for puppetmaster
+  command: "puppet cert --generate {{hostname}}"
+  when: puppet_configured|failed
+
+- name: ignite CA directory
+  command: "puppet cert list -a"
   when: puppet_configured|failed
 
 - name: run masterless puppet to configure the puppetmaster

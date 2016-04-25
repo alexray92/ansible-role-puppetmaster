@@ -1,5 +1,7 @@
 ---
 puppet_basedir: '/etc/puppet'
+puppet_data_dir: '/var/lib/puppet'
+hiera_credentials_dir: "{{puppet_basedir}}/keys"
 puppet_environment: 'production'
 hostname: "{{ inventory_hostname }}"
 puppetlabs_repo_url: 'https://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm'
@@ -12,3 +14,15 @@ rpm_packages:
 ruby_gems:
  - r10k
  - hiera-eyaml
+
+hiera_private_key: "{{lookup('env','HIERA_PRIVATE_KEY')}}"
+hiera_public_key: "{{lookup('env','HIERA_PUBLIC_KEY')}}"
+hiera_private_key_file: "{{hiera_credentials_dir}}/private_key.pkcs7.pem"
+hiera_public_key_file: "{{hiera_credentials_dir}}/public_key.pkcs7.pem"
+
+puppetmaster_ca_privkey: "{{lookup('env','PUPPETMASTER_CA_PRIVKEY')}}"
+puppetmaster_ca_pubkey: "{{lookup('env','PUPPETMASTER_CA_PUBKEY')}}"
+puppetmaster_ca_cert: "{{lookup('env','PUPPETMASTER_CA_CERT')}}"
+puppetmaster_ca_privkey_file: "{{puppet_data_dir}}/ssl/ca/ca_key.pem"
+puppetmaster_ca_pubkey_file: "{{puppet_data_dir}}/ssl/ca/ca_pub.pem"
+puppetmaster_ca_cert_file: "{{puppet_data_dir}}/ssl/ca/ca_crt.pem"
