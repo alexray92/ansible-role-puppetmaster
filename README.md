@@ -20,6 +20,24 @@ This control repository contains:
 You will also need to set up your Hiera hierarchy as specified in the r10k.yaml
 file under templates.
 
+Place PKI keys and certificates in environment
+----------------------------------------------
+
+When using encryption in hiera, the keys need to be deployed before puppet can run on the puppetmaster.
+Provide the keys via environment as following:
+
+```sh
+export HIERA_PRIVATE_KEY="$(cat credentials/hiera_private_key.pkcs7.pem)"
+export HIERA_PUBLIC_KEY="$(cat credentials/hiera_public_key.pkcs7.pem)"
+```
+
+Optionally for the puppetmaster PKI keys can be provided via environment as well:
+
+```sh
+export PUPPETMASTER_CA_PRIVKEY="$(cat credentials/puppetmaster_ca_privkey.pem)"
+export PUPPETMASTER_CA_CERT="$(cat credentials/puppetmaster_ca_cert.pem)"
+```
+
 Caveats
 -------
 
