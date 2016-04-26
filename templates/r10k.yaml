@@ -2,4 +2,4 @@
 sources:
   puppet:
     remote: "{{ puppet_environments_repo }}"
-    basedir: "{{puppet_basedir}}/environments"
+    basedir: "{{puppet_etc_dir}}/environments"

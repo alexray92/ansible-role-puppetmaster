@@ -24,7 +24,7 @@
   with_items: "{{ruby_gems}}"
 
 - name: deploy basic puppet.conf for initial bootstrapping
-  template: src=puppet.conf dest={{puppet_basedir}}/puppet.conf
+  template: src=puppet.conf dest={{puppet_etc_dir}}/puppet.conf
   when: puppet_configured|failed
 
 - name: ensure hiera keys directory exists
@@ -60,13 +60,13 @@
   when: puppetmaster_ca_cert != ""
 
 - name: deploy a configuration file for r10k
-  template: src=r10k.yaml dest={{puppet_basedir}}/r10k.yaml
+  template: src=r10k.yaml dest={{puppet_etc_dir}}/r10k.yaml
 
 - name: deploy a configuration file for hiera
-  template: src=hiera.yaml dest={{puppet_basedir}}/hiera.yaml
+  template: src=hiera.yaml dest={{puppet_etc_dir}}/hiera.yaml
 
 - name: deploy puppet environments with r10k
-  command: "/usr/local/bin/r10k deploy environment -c {{puppet_basedir}}/r10k.yaml -p -v error"
+  command: "/usr/local/bin/r10k deploy environment -c {{puppet_etc_dir}}/r10k.yaml -p -v error"
 
 - name: generate client certificate for puppetmaster
   command: "puppet cert --generate {{hostname}}"
@@ -77,6 +77,6 @@
   when: puppet_configured|failed
 
 - name: run masterless puppet to configure the puppetmaster
-  command: "puppet apply --environment {{puppet_environment}} --pluginsync --hiera_config {{puppet_basedir}}/hiera.yaml --modulepath {{puppet_basedir}}/environments/{{puppet_environment}}/modules {{puppet_basedir}}/environments/{{puppet_environment}}/manifests"
+  command: "puppet apply --environment {{puppet_environment}} --pluginsync --hiera_config {{puppet_etc_dir}}/hiera.yaml --modulepath {{puppet_etc_dir}}/environments/{{puppet_environment}}/modules {{puppet_etc_dir}}/environments/{{puppet_environment}}/manifests"
   register: puppet_result
   failed_when: (puppet_result.rc != 2) and (puppet_result.rc != 0)

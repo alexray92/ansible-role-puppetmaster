@@ -1,7 +1,7 @@
 ---
-puppet_basedir: '/etc/puppet'
+puppet_etc_dir: '/etc/puppet'
 puppet_data_dir: '/var/lib/puppet'
-hiera_credentials_dir: "{{puppet_basedir}}/keys"
+hiera_credentials_dir: "{{puppet_etc_dir}}/keys"
 puppet_environment: 'production'
 hostname: "{{ inventory_hostname }}"
 puppetlabs_repo_url: 'https://yum.puppetlabs.com/puppetlabs-release-el-7.noarch.rpm'
