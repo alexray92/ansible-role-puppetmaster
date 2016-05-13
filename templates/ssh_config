@@ -1,0 +1,7 @@
+# use hiera rsa key for github repositories
+Host github.com
+    User git
+    PreferredAuthentications publickey
+    IdentityFile "{{hiera_private_key_file}}"
+    UserKnownHostsFile=/dev/null
+    StrictHostKeyChecking no

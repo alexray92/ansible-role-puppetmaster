@@ -1,4 +1,7 @@
 ---
+- name: set ssh config for root user
+  template: src=ssh_config dest=/root/.ssh/config owner=root group=root mode=0600
+
 - name: check if puppet is already configured
   command: "ls /etc/puppet/rack/public"
   register: puppet_configured
@@ -29,34 +32,34 @@
 
 - name: ensure hiera keys directory exists
   file: path="{{hiera_credentials_dir}}" state=directory
-        group="puppet" owner="puppet" mode=0750
+        group={{puppet_username}} owner={{puppet_username}} mode=0750
 
 - name: deploy hiera private key
   copy: content="{{hiera_private_key}}" dest="{{hiera_private_key_file}}"
-        group="puppet" owner="puppet" mode=0400
+        group={{puppet_username}} owner={{puppet_username}} mode=0400
   when: hiera_private_key != ""
 
 - name: deploy hiera public key
   copy: content="{{hiera_public_key}}" dest="{{hiera_public_key_file}}"
-        group="puppet" owner="puppet" mode=0440
+        group={{puppet_username}} owner={{puppet_username}} mode=0440
   when: hiera_public_key != ""
 
 - name: ensure puppet ssl directory exists
   file: path="{{puppet_data_dir}}/ssl" state=directory
-        group="puppet" owner="puppet" mode=0775
+        group={{puppet_username}} owner={{puppet_username}} mode=0775
 
 - name: ensure puppet ca directory exists
   file: path="{{puppet_data_dir}}/ssl/ca" state=directory
-        group="puppet" owner="puppet" mode=0755
+        group={{puppet_username}} owner={{puppet_username}} mode=0755
 
 - name: deploy puppetmaster CA private key
   copy: content="{{puppetmaster_ca_privkey}}" dest="{{puppetmaster_ca_privkey_file}}"
-        group="puppet" owner="puppet" mode=0640
+        group={{puppet_username}} owner={{puppet_username}} mode=0640
   when: puppetmaster_ca_privkey != ""
 
 - name: deploy puppetmaster CA certificate
   copy: content="{{puppetmaster_ca_cert}}" dest="{{puppetmaster_ca_cert_file}}"
-        group="puppet" owner="puppet" mode=0640
+        group={{puppet_username}} owner={{puppet_username}} mode=0640
   when: puppetmaster_ca_cert != ""
 
 - name: deploy a configuration file for r10k
