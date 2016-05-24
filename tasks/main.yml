@@ -46,7 +46,7 @@
 
 - name: ensure puppet ssl directory exists
   file: path="{{puppet_data_dir}}/ssl" state=directory
-        group={{puppet_username}} owner={{puppet_username}} mode=0775
+        group={{puppet_username}} owner={{puppet_username}} mode=0771
 
 - name: ensure puppet ca directory exists
   file: path="{{puppet_data_dir}}/ssl/ca" state=directory
