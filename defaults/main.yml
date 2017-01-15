@@ -32,5 +32,3 @@ puppetmaster_ca_cert: "{{lookup('env','PUPPETMASTER_CA_CERT')}}"
 puppetmaster_ca_privkey_file: "{{puppet_data_dir}}/ssl/ca/ca_key.pem"
 puppetmaster_ca_pubkey_file: "{{puppet_data_dir}}/ssl/ca/ca_pub.pem"
 puppetmaster_ca_cert_file: "{{puppet_data_dir}}/ssl/ca/ca_crt.pem"
-
-env_deploy_shell_prefix:
