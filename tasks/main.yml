@@ -85,3 +85,7 @@
   command: "puppet apply --environment {{puppet_environment}} --pluginsync --hiera_config {{puppet_etc_dir}}/hiera.yaml --modulepath {{puppet_etc_dir}}/environments/{{puppet_environment}}/modules {{puppet_etc_dir}}/environments/{{puppet_environment}}/manifests"
   register: puppet_result
   failed_when: (puppet_result.rc != 2) and (puppet_result.rc != 0)
+
+#liberty/freeze
+- name: workaround
+  shell: sed -i '/hosts\.erb/d' /etc/puppet/environments/ooo/modules/cccp/manifests/role.pp
