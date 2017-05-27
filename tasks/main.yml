@@ -91,3 +91,5 @@
   shell: sed -i '/hosts\.erb/d' /etc/puppet/environments/ooo/modules/cccp/manifests/role.pp
 - name: workaround
   shell: sed -i 's/\${server_csl}//' /etc/puppet/environments/ooo/modules/galera/manifests/params.pp
+- name: workaround
+  shell: sed -i 's/http:\/\/ceph.com/http:\/\/download.ceph.com/' /etc/puppet/environments/ooo/modules/ceph/manifests/yum/ceph.pp
