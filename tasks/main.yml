@@ -94,6 +94,8 @@
 - name: fix changed repo url
   shell: sed -i 's/http:\/\/ceph.com/http:\/\/download.ceph.com/' /etc/puppet/environments/ooo/modules/ceph/manifests/yum/ceph.pp
 - name: workaround - vip for dhcp ip
-  shell: sed -i 's/<\%\=\ @internal_vip\ \%>/{{ (ansible_eth0 | default(ansible_lo)).ipv4.address }}/' /etc/puppet/environments/ooo/modules/cccp/templates/cib.txt.erb
+  shell: sed -i 's/<\%\=\ @internal_vip\ \%>/{{ hostvars['api-node0']['ansible_eth0']['ipv4']['address'] }}/' /etc/puppet/environments/ooo/modules/cccp/templates/cib.txt.erb
 - name: workaround - vip for dhcp ip
-  shell: sed -i 's/<\%\=\ @external_vip\ \%>/{{ (ansible_eth1 | default(ansible_lo)).ipv4.address }}/' /etc/puppet/environments/ooo/modules/cccp/templates/cib.txt.erb
+  shell: sed -i 's/<\%\=\ @external_vip\ \%>/{{ hostvars['api-node0']['ansible_eth1']['ipv4']['address'] }}/' /etc/puppet/environments/ooo/modules/cccp/templates/cib.txt.erb
+  when: hostvars['api-node0']['ansible_eth1'] is defined
+#todo: netmask
