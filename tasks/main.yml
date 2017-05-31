@@ -87,9 +87,13 @@
   failed_when: (puppet_result.rc != 2) and (puppet_result.rc != 0)
 
 #liberty/freeze
-- name: workaround
+- name: workaround - hosts file gets overwritten
   shell: sed -i '/hosts\.erb/d' /etc/puppet/environments/ooo/modules/cccp/manifests/role.pp
-- name: workaround
+- name: workaround - all galera nodes as master
   shell: sed -i 's/\${server_csl}//' /etc/puppet/environments/ooo/modules/galera/manifests/params.pp
-- name: workaround
+- name: fix changed repo url
   shell: sed -i 's/http:\/\/ceph.com/http:\/\/download.ceph.com/' /etc/puppet/environments/ooo/modules/ceph/manifests/yum/ceph.pp
+- name: workaround - vip for dhcp ip
+  shell: sed -i 's/<\%\=\ @internal_vip\ \%>/{{ (ansible_eth0 | default(ansible_lo)).ipv4.address }}/' /etc/puppet/environments/ooo/modules/cccp/templates/cib.txt.erb
+- name: workaround - vip for dhcp ip
+  shell: sed -i 's/<\%\=\ @external_vip\ \%>/{{ (ansible_eth1 | default(ansible_lo)).ipv4.address }}/' /etc/puppet/environments/ooo/modules/cccp/templates/cib.txt.erb
