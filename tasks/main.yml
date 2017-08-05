@@ -70,7 +70,7 @@
   template: src=hiera.yaml dest={{puppet_etc_dir}}/hiera.yaml
 
 - name: deploy puppet environments with r10k
-  shell: "sudo -E -s /usr/local/bin/r10k deploy environment -c {{puppet_etc_dir}}/r10k.yaml -p -v error"
+  local_action: "shell ssh -A cloud-user@{{ ansible_ssh_host }} sudo -E /usr/local/bin/r10k deploy environment -c {{puppet_etc_dir}}/r10k.yaml -p -v error"
   become: no
 
 - name: generate client certificate for puppetmaster
