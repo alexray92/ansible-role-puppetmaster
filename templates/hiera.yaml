@@ -4,12 +4,10 @@
   - eyaml
 
 :hierarchy:
-  - secret/overrides_for_%{::environment}
   - secret/%{::environment}
   - secret/development
   - secret/common
   - "hosts/%{::clientcert}"
-  - overrides_for_%{::environment}
   - "%{::environment}"
   - users
   - development
