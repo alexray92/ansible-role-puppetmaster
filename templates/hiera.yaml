@@ -6,7 +6,6 @@
 :hierarchy:
   - secret/%{::environment}
   - secret/development
-  - secret/common
   - "hosts/%{::clientcert}"
   - "%{::environment}"
   - users
