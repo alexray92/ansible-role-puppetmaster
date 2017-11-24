@@ -69,9 +69,8 @@
 - name: deploy a configuration file for hiera
   template: src=hiera.yaml dest={{puppet_etc_dir}}/hiera.yaml
 
-- name: deploy puppet environment with r10k
-  local_action: "shell ssh -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=/dev/null' -A cloud-user@{{ansible_ssh_host}} sudo -E /usr/local/bin/r10k deploy environment -c {{puppet_etc_dir}}/r10k.yaml -p -v error {{puppet_environment}}"
-  become: no
+- name: deploy puppet environments with r10k
+  command: "/usr/local/bin/r10k deploy environment -c {{puppet_etc_dir}}/r10k.yaml -p -v error"
 
 - name: generate client certificate for puppetmaster
   command: "puppet cert --generate {{hostname}}"
