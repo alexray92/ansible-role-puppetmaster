@@ -5,11 +5,9 @@
 
 :hierarchy:
   - secret/%{::environment}
-  - secret/development
   - "hosts/%{::clientcert}"
   - "%{::environment}"
   - users
-  - development
   - common
 
 :yaml:
