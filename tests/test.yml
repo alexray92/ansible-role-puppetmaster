@@ -1,6 +1,7 @@
 ---
 
- - hosts: localhost
+ - name: PUPPET 3
+   hosts: localhost
    remote_user: root
    vars:
      - puppet_environments_repo: "https://github.com/puppetlabs/control-repo"
