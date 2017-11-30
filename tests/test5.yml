@@ -1,0 +1,28 @@
+---
+
+ - name: PUPPET 5
+   hosts: localhost
+   remote_user: root
+   vars:
+     - puppet_environments_repo: "https://github.com/puppetlabs/control-repo"
+     - puppetlabs_repo_url: "https://yum.puppet.com/puppet5/puppet5-release-el-7.noarch.rpm"
+     - rpm_packages:
+       - git
+       - puppet-agent
+       - puppetserver
+       - puppetdb
+       - rubygems
+
+   roles:
+     - ansible-role-puppetmaster
+   pre_tasks:
+   - name: pre testingonly - create /root/.ssh directory because the role assumes it exists
+     file: path=/root/.ssh state=directory mode=0700
+   - name: pre testingonly - create credentials directory
+     file: path=credentials state=directory mode=0775
+   - name: pre testingonly - install ruby gems first because we need eyaml to create keys
+     gem: name="{{item.gem}}" state=present user_install=no version="{{ item.version }}"
+     with_items: "{{ruby_gems_versions}}"
+   - name: pre testingonly - create hiera keys
+     command: eyaml createkeys --pkcs7-private-key=credentials/hiera_private_key.pkcs7.pem --pkcs7-public-key=credentials/hiera_public_key.pkcs7.pem
+...
