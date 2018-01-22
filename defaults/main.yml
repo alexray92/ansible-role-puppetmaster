@@ -1,6 +1,6 @@
 ---
 puppet_username: 'puppet'
-puppet_etc_dir: '/etc/puppet'
+puppet_etc_dir: '/etc/puppetlabs/puppet'
 puppet_data_dir: '/var/lib/puppet'
 hiera_credentials_dir: "{{puppet_etc_dir}}/keys"
 puppet_environment: 'production'

@@ -3,7 +3,7 @@
   template: src=ssh_config dest=/root/.ssh/config owner=root group=root mode=0600
 
 - name: check if puppet is already configured
-  command: "ls /etc/puppet/rack/public"
+  command: "ls /etc/puppetlabs/puppet"
   register: puppet_configured
   ignore_errors: True
 
