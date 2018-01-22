@@ -10,7 +10,7 @@ passenger_dot_repo_file_url: 'https://oss-binaries.phusionpassenger.com/yum/defi
 rpm_packages:
  - git
  - puppet
- - puppet-server
+ - puppetserver
  - rubygems
 ruby_gems:
  - r10k
