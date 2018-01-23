@@ -2,6 +2,6 @@
 sources:
   puppet:
     remote: "{{ puppet_environments_repo }}"
-    basedir: "{{puppet_etc_dir}}/environments"
+    basedir: "{{puppet_code_dir}}/environments"
     invalid_branches: correct
-postrun: [ '/bin/bash', '-c', 'for env in $(ls {{puppet_etc_dir}}/environments | awk ''$1 !~ /^master$|^test$|^production$/''); do ln -rs {{puppet_etc_dir}}/environments/$env/hieradata/development.yaml {{puppet_etc_dir}}/environments/$env/hieradata/$env.yaml; ln -rs {{puppet_etc_dir}}/environments/$env/hieradata/secret/development.eyaml {{puppet_etc_dir}}/environments/$env/hieradata/secret/$env.eyaml; done' ]
+postrun: [ '/bin/bash', '-c', 'for env in $(ls {{puppet_code_dir}}/environments | awk ''$1 !~ /^master$|^test$|^production$/''); do ln -rs {{puppet_code_dir}}/environments/$env/hieradata/development.yaml {{puppet_code_dir}}/environments/$env/hieradata/$env.yaml; ln -rs {{puppet_code_dir}}/environments/$env/hieradata/secret/development.eyaml {{puppet_code_dir}}/environments/$env/hieradata/secret/$env.eyaml; done' ]
