@@ -79,12 +79,14 @@
   blockinfile:
     path: "{{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp"
     insertbefore: java_args
+    marker: "#one"
     block: |2
         manage_firewall => false,
 - name: add invocation to modules which configure puppetserver
   blockinfile:
     path: "{{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp"
     insertbefore: "class { 'opsviewagent"
+    marker: "#two"
     block: |2
         class { 'puppetserver::repository': } ->
         class { 'puppetserver': }
