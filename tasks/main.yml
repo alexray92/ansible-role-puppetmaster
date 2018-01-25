@@ -88,6 +88,9 @@
 - shell: ln -s /opt/puppetlabs/bin/hiera /usr/local/bin/
 - shell: "mkdir {{puppet_code_dir}}/environments/production"
 - shell: "ln -s /etc/puppetlabs/puppet /etc/puppet"
+- shell: /opt/puppetlabs/puppet/bin/gem install hiera-eyaml
+- shell: /opt/puppetlabs/server/bin/puppetserver gem install hiera-eyaml
+
 ###
 
 - name: generate client certificate for puppetmaster
