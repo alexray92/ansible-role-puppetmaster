@@ -82,14 +82,23 @@
     block: |2
         manage_firewall => false,
 - shell: 'sed -i "/puppet::master/,+5d" {{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp'
+  ignore_errors: True
 - shell: ln -s /opt/puppetlabs/bin/facter /usr/local/bin/
+  ignore_errors: True
 - shell: ln -s /opt/puppetlabs/bin/puppet* /usr/local/bin/
+  ignore_errors: True
 - shell: ln -s /opt/puppetlabs/bin/mco /usr/local/bin/
+  ignore_errors: True
 - shell: ln -s /opt/puppetlabs/bin/hiera /usr/local/bin/
+  ignore_errors: True
 - shell: "mkdir {{puppet_code_dir}}/environments/production"
+  ignore_errors: True
 - shell: "ln -s /etc/puppetlabs/puppet /etc/puppet"
+  ignore_errors: True
 - shell: /opt/puppetlabs/puppet/bin/gem install hiera-eyaml
+  ignore_errors: True
 - shell: /opt/puppetlabs/server/bin/puppetserver gem install hiera-eyaml
+  ignore_errors: True
 
 ###
 
