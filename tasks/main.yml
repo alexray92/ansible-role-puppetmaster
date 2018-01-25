@@ -3,7 +3,9 @@
   template: src=ssh_config dest=/root/.ssh/config owner=root group=root mode=0600
 
 - name: check if puppet is already configured
+### PoC mods for Puppet4
   command: "ls {{puppet_etc_dir}}"
+###
   register: puppet_configured
   ignore_errors: True
 
@@ -80,7 +82,28 @@
   command: "puppet cert list -a"
   when: puppet_configured|failed
 
+### PoC mods for Puppet4
+
+- name: workaround - modify puppetdb manage_firewall setting
+  blockinfile:
+    path: "{{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp"
+    insertbefore: java_args
+    block: |2
+        manage_firewall => false,
+
+- shell: 'sed -i "/puppet::master/,+5d" {{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp'
+- shell: ln -s /opt/puppetlabs/bin/facter /usr/local/bin/
+- shell: ln -s /opt/puppetlabs/bin/puppet* /usr/local/bin/
+- shell: ln -s /opt/puppetlabs/bin/mco /usr/local/bin/
+- shell: ln -s /opt/puppetlabs/bin/hiera /usr/local/bin/
+- shell: "mkdir {{puppet_code_dir}}/environments/production"
+- shell: "ln -s /etc/puppetlabs/puppet /etc/puppet"
+###
+
 - name: run masterless puppet to configure the puppetmaster
+### PoC
   command: "puppet apply --environment {{puppet_environment}} --pluginsync --hiera_config {{puppet_etc_dir}}/hiera.yaml --modulepath {{puppet_code_dir}}/environments/{{puppet_environment}}/modules {{puppet_code_dir}}/environments/{{puppet_environment}}/manifests"
+###
   register: puppet_result
   failed_when: (puppet_result.rc != 2) and (puppet_result.rc != 0)
+
