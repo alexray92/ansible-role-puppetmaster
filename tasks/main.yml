@@ -107,7 +107,11 @@
   ignore_errors: True
 - shell: /opt/puppetlabs/puppet/bin/gem install hiera-eyaml
   ignore_errors: True
+- name: check puppetserver gem
+  shell: puppetserver gem list | grep hiera-eyaml
+  register: gem_list_eyaml
 - shell: /opt/puppetlabs/server/bin/puppetserver gem install hiera-eyaml
+  when: gem_list_eyaml.rc != 0
   ignore_errors: True
 
 ###
