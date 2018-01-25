@@ -74,23 +74,13 @@
 - name: deploy puppet environment with r10k
   command: "/usr/local/bin/r10k deploy environment -c {{puppet_etc_dir}}/r10k.yaml -p -v error {{puppet_environment}}"
 
-- name: generate client certificate for puppetmaster
-  command: "puppet cert --generate {{hostname}}"
-  when: puppet_configured|failed
-
-- name: ignite CA directory
-  command: "puppet cert list -a"
-  when: puppet_configured|failed
-
 ### PoC mods for Puppet4
-
 - name: workaround - modify puppetdb manage_firewall setting
   blockinfile:
     path: "{{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp"
     insertbefore: java_args
     block: |2
         manage_firewall => false,
-
 - shell: 'sed -i "/puppet::master/,+5d" {{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp'
 - shell: ln -s /opt/puppetlabs/bin/facter /usr/local/bin/
 - shell: ln -s /opt/puppetlabs/bin/puppet* /usr/local/bin/
@@ -99,6 +89,14 @@
 - shell: "mkdir {{puppet_code_dir}}/environments/production"
 - shell: "ln -s /etc/puppetlabs/puppet /etc/puppet"
 ###
+
+- name: generate client certificate for puppetmaster
+  command: "puppet cert --generate {{hostname}}"
+  when: puppet_configured|failed
+
+- name: ignite CA directory
+  command: "puppet cert list -a"
+  when: puppet_configured|failed
 
 - name: run masterless puppet to configure the puppetmaster
 ### PoC
