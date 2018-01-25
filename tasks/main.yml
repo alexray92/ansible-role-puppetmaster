@@ -75,12 +75,19 @@
   command: "/usr/local/bin/r10k deploy environment -c {{puppet_etc_dir}}/r10k.yaml -p -v error {{puppet_environment}}"
 
 ### PoC mods for Puppet4
-- name: workaround - modify puppetdb manage_firewall setting
+- name: modify puppetdb manage_firewall setting
   blockinfile:
     path: "{{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp"
     insertbefore: java_args
     block: |2
         manage_firewall => false,
+- name: add invocation to modules which configure puppetserver
+  blockinfile:
+    path: "{{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp"
+    insertbefore: "class { 'opsviewagent"
+    block: |2
+        class { 'puppetserver::repository': } ->
+        class { 'puppetserver': }
 - shell: 'sed -i "/puppet::master/,+5d" {{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp'
   ignore_errors: True
 - shell: ln -s /opt/puppetlabs/bin/facter /usr/local/bin/
