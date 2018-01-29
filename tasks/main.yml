@@ -92,6 +92,7 @@
 
 - shell: 'sed -i "/puppet::master/,+5d" {{puppet_code_dir}}/environments/{{puppet_environment}}/modules/cccp/manifests/role/puppetmaster.pp'
   ignore_errors: True
+- shell: rm -Rf /etc/puppetlabs/code/modules
 - shell: ln -s {{puppet_code_dir}}/environments/{{puppet_environment}}/modules /etc/puppetlabs/code/modules
   ignore_errors: True
 - shell: ln -s /opt/puppetlabs/bin/facter /usr/local/bin/
