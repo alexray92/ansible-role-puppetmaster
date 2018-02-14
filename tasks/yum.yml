@@ -1,0 +1,86 @@
+---
+- name: set ssh config for root user
+  template: src=ssh_config dest=/root/.ssh/config owner=root group=root mode=0600
+
+- name: check if puppet is already configured
+  command: "ls /etc/puppet/rack/public"
+  register: puppet_configured
+  ignore_errors: True
+
+- name: install puppetlabs repo
+  yum: name={{item}} state=present
+  with_items:
+    - "{{puppetlabs_repo_url}}"
+- name: install passenger repo
+
+  get_url: url="{{ passenger_dot_repo_file_url }}" dest=/etc/yum.repos.d/passenger.repo validate_certs=no
+
+- name: install mod_passenger (with a hack to accept the gpg key initially)
+  command: "yum -y install mod_passenger"
+
+- name: install tools packages
+  yum: name={{item}} state=present
+  with_items: "{{rpm_packages}}"
+
+# workaround: puppet_forge 2.2.7 requires semantic_puppet ~> 1.0 while r10k requires ~> 0.1
+- name: install ruby gems
+  gem: name="{{item.gem}}" state=present user_install=no version="{{item.version}}"
+  with_items: "{{ruby_gems_versions}}"
+
+- name: deploy basic puppet.conf for initial bootstrapping
+  template: src=puppet.conf dest={{puppet_etc_dir}}/puppet.conf
+  when: puppet_configured|failed
+
+- name: ensure hiera keys directory exists
+  file: path="{{hiera_credentials_dir}}" state=directory
+        group={{puppet_username}} owner={{puppet_username}} mode=0750
+
+- name: deploy hiera private key
+  copy: content="{{hiera_private_key}}" dest="{{hiera_private_key_file}}"
+        group={{puppet_username}} owner={{puppet_username}} mode=0400
+  when: hiera_private_key != ""
+
+- name: deploy hiera public key
+  copy: content="{{hiera_public_key}}" dest="{{hiera_public_key_file}}"
+        group={{puppet_username}} owner={{puppet_username}} mode=0440
+  when: hiera_public_key != ""
+
+- name: ensure puppet ssl directory exists
+  file: path="{{puppet_data_dir}}/ssl" state=directory
+        group={{puppet_username}} owner={{puppet_username}} mode=0771
+
+- name: ensure puppet ca directory exists
+  file: path="{{puppet_data_dir}}/ssl/ca" state=directory
+        group={{puppet_username}} owner={{puppet_username}} mode=0755
+
+- name: deploy puppetmaster CA private key
+  copy: content="{{puppetmaster_ca_privkey}}" dest="{{puppetmaster_ca_privkey_file}}"
+        group={{puppet_username}} owner={{puppet_username}} mode=0640
+  when: puppetmaster_ca_privkey != ""
+
+- name: deploy puppetmaster CA certificate
+  copy: content="{{puppetmaster_ca_cert}}" dest="{{puppetmaster_ca_cert_file}}"
+        group={{puppet_username}} owner={{puppet_username}} mode=0640
+  when: puppetmaster_ca_cert != ""
+
+- name: deploy a configuration file for r10k
+  template: src=r10k.yaml dest={{puppet_etc_dir}}/r10k.yaml
+
+- name: deploy a configuration file for hiera
+  template: src=hiera.yaml dest={{puppet_etc_dir}}/hiera.yaml
+
+- name: deploy puppet environments with r10k
+  command: "/usr/local/bin/r10k deploy environment -c {{puppet_etc_dir}}/r10k.yaml -p -v error"
+
+- name: generate client certificate for puppetmaster
+  command: "puppet cert --generate {{hostname}}"
+  when: puppet_configured|failed
+
+- name: ignite CA directory
+  command: "puppet cert list -a"
+  when: puppet_configured|failed
+
+- name: run masterless puppet to configure the puppetmaster
+  command: "puppet apply --environment {{puppet_environment}} --pluginsync --hiera_config {{puppet_etc_dir}}/hiera.yaml --modulepath {{puppet_etc_dir}}/environments/{{puppet_environment}}/modules {{puppet_etc_dir}}/environments/{{puppet_environment}}/manifests"
+  register: puppet_result
+  failed_when: (puppet_result.rc != 2) and (puppet_result.rc != 0)
